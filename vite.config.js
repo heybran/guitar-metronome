@@ -9,8 +9,9 @@ export default {
   },
   resolve: {
     alias: {
-      '@components': '/src/components',
-      '@sounds': '/src/sounds',
-    }
-  }
+      "@components": "/src/components",
+      "@sounds": "/src/sounds",
+      "@icons": "/src/icons",
+    },
+  },
 };
