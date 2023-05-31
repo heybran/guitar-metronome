@@ -10,6 +10,7 @@ export default {
   resolve: {
     alias: {
       '@components': '/src/components',
+      '@sounds': '/src/sounds',
     }
   }
 };
