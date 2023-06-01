@@ -16,6 +16,20 @@ export default class GuitarMetronome extends HTMLElement {
   #bpm;
 
   /**
+   * The tempo (BPM) text element.
+   * @type {HTMLElement}
+   * @private
+   */
+  #tempo;
+
+  /**
+   * Beat count of the metronome.
+   * @type {number}
+   * @private
+   */
+  #beatCount;
+
+  /**
    * A flag indicating whether the metronome is currently playing.
    * @type {boolean}
    * @private
@@ -28,6 +42,13 @@ export default class GuitarMetronome extends HTMLElement {
    * @private
    */
   #timerId;
+
+  /**
+   * The start time of the current beat.
+   * @type {number}
+   * @private
+   */
+  #timerStart;
 
   /**
    * The time signature of the metronome, expressed as a string
@@ -57,6 +78,11 @@ export default class GuitarMetronome extends HTMLElement {
   constructor() {
     super();
     this.root = this.attachShadow({ mode: "open" });
+    this.#isPlaying = false;
+    // @ts-ignore
+    this.#timerId = null;
+    this.#timerStart = null;
+    this.#beatCount = 0;
   }
 
   connectedCallback() {
@@ -74,11 +100,10 @@ export default class GuitarMetronome extends HTMLElement {
     }
 
     this.render();
-    this.#isPlaying = false;
-    // @ts-ignore
-    this.#timerId = null;
     // @ts-ignore
     this.#srText = this.shadowRoot.querySelector(".toggle-play .sr-only");
+    // @ts-ignore
+    this.#tempo = this.shadowRoot?.querySelector(".tempo");
   }
 
   /**
@@ -100,15 +125,15 @@ export default class GuitarMetronome extends HTMLElement {
     //   return;
     // }
 
-    /** @type {number} */
-    let beatCount = 0;
-
     const interval = 60000 / this.#bpm;
+    this.#timerStart = performance.now();
     this.#timerId = setInterval(() => {
       // Play the metronome sound
-      const audio = new Audio(beatCount % 4 === 0 ? BeatStart : BeatNormal);
+      const audio = new Audio(
+        this.#beatCount % 4 === 0 ? BeatStart : BeatNormal,
+      );
       audio.play();
-      beatCount++;
+      this.#beatCount++;
     }, interval);
 
     this.#isPlaying = true;
@@ -129,6 +154,22 @@ export default class GuitarMetronome extends HTMLElement {
     clearInterval(this.#timerId);
     this.#isPlaying = false;
     this.#timerId = null;
+    this.#beatCount = 0;
+    this.#timerStart = null;
+  }
+
+  /**
+   * Slows down tempo of the metronome.
+   */
+  decreaseTempo() {
+    this.setBpm(this.#bpm - 1);
+  }
+
+  /**
+   * Speeds up tempo of the metronome.
+   */
+  increaseTempo() {
+    this.setBpm(this.#bpm + 1);
   }
 
   /**
@@ -141,7 +182,38 @@ export default class GuitarMetronome extends HTMLElement {
     }
 
     this.#bpm = bpm;
+    this.#tempo.textContent = this.#bpm;
+
     if (this.#isPlaying) {
+      const timeElapsed = this.#timerId
+        ? performance.now() - this.#timerStart
+        : 0;
+      const timePerBeat = 60000 / this.#bpm;
+      const beatsElapsed = Math.floor(timeElapsed / timePerBeat);
+      const measureElapsed = Math.floor(beatsElapsed / 4);
+      const timeElapsedInMeasure =
+        timeElapsed - measureElapsed * 4 * timePerBeat;
+      const timeRemainingInMeasure = 4 * timePerBeat - timeElapsedInMeasure;
+      clearInterval(this.#timerId);
+      const interval = 60000 / this.#bpm;
+      const delay = timeRemainingInMeasure;
+
+      setTimeout(() => {
+        // Play the metronome sound
+        const audio = new Audio(
+          this.#beatCount % 4 === 0 ? BeatStart : BeatNormal,
+        );
+        audio.play();
+        this.#beatCount++;
+        this.#timerStart = performance.now();
+        this.#timerId = setInterval(() => {
+          const audio = new Audio(
+            this.#beatCount % 4 === 0 ? BeatStart : BeatNormal,
+          );
+          audio.play();
+          this.#beatCount++;
+        }, interval);
+      }, delay);
       this.stop();
       this.start();
     }
@@ -175,14 +247,14 @@ export default class GuitarMetronome extends HTMLElement {
           <div class="beat"></div>
         </div>
         <div class="tempo-wrapper">
-          <button class="tempo-control tempo-control--decrease" aria-label="Decrease tempo">
+          <button class="tempo-control" onclick="this.getRootNode().host.decreaseTempo()" aria-label="Decrease tempo">
             <svg role="img" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
               <path fill="currentColor" d="M19 12.998H5v-2h14z"/>
             </svg>
             <span class="sr-only">Decrease tempo</span>
           </button>
           <div class="tempo" data-text="bpm">${this.#bpm}</div>
-          <button class="tempo-control tempo-control--increase" aria-label="Increase tempo">
+          <button class="tempo-control" onclick="this.getRootNode().host.increaseTempo()" aria-label="Increase tempo">
             <svg role="img" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
               <path fill="currentColor" d="M19 12.998h-6v6h-2v-6H5v-2h6v-6h2v6h6z"/>
             </svg>
