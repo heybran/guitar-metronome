@@ -45,6 +45,13 @@ export default class GuitarMetronome extends HTMLElement {
   #root;
 
   /**
+   * The screen reader text
+   * @type {HTMLElement}
+   * @private
+   */
+  #srText;
+
+  /**
    * Creates a new instance of the GuitarMetronome class.
    */
   constructor() {
@@ -66,28 +73,22 @@ export default class GuitarMetronome extends HTMLElement {
       this.#bpm = 80;
     }
 
-    this.#isPlaying = false;
-    this.#timerId = null;
-
     this.render();
+    this.#isPlaying = false;
+    // @ts-ignore
+    this.#timerId = null;
+    // @ts-ignore
+    this.#srText = this.shadowRoot.querySelector(".toggle-play .sr-only");
   }
 
   /**
    * Toggles the metronome play state.
-   * @param {HTMLButtonElement} button
    */
-  toggle(button) {
-    const label = button.querySelector(".sr-only");
+  toggle() {
     if (this.#isPlaying) {
       this.stop();
-      this.#isPlaying = false;
-      this.classList.remove("is-playing");
-      label.textContent = "Play metronome";
     } else {
       this.start();
-      this.#isPlaying = true;
-      this.classList.add("is-playing");
-      label.textContent = "Pause metronome";
     }
   }
 
@@ -111,6 +112,8 @@ export default class GuitarMetronome extends HTMLElement {
     }, interval);
 
     this.#isPlaying = true;
+    this.classList.add("is-playing");
+    this.#srText.textContent = "Pause metronome";
   }
 
   /**
@@ -121,7 +124,10 @@ export default class GuitarMetronome extends HTMLElement {
     //   return;
     // }
 
+    this.classList.remove("is-playing");
+    this.#srText.textContent = "Play metronome";
     clearInterval(this.#timerId);
+    this.#isPlaying = false;
     this.#timerId = null;
   }
 
@@ -145,48 +151,51 @@ export default class GuitarMetronome extends HTMLElement {
     this.root.innerHTML = `
       <style>${css}</style>
       <div class="container">
-      <div class="signature">
-        <button class="signature" data-signature="3/4">
+        <div class="signatures">
+        <button class="signature" data-signature="2/4">
           <div>2</div>
+          <div>4</div>
+        </button>
+        <button class="signature" data-signature="3/4">
+          <div>3</div>
           <div>4</div>
         </button>
         <button class="signature" data-signature="4/4">
           <div>4</div>
           <div>4</div>
         </button>
-        <button class="signature" data-signature="6/8">
-          <div>6</div>
-          <div>8</div>
+        <button class="signature" data-signature="5/4">
+          <div>5</div>
+          <div>4</div>
         </button>
-      </div>
-      <div class="beats-indicators">
-        <div class="beat"></div>
-        <div class="beat"></div>
-        <div class="beat"></div>
-      </div>
-      <div class="tempo-wrapper">
-      <button class="tempo-control tempo-control--decrease" aria-label="Decrease tempo">
-      <svg role="img" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-  <path fill="currentColor" d="M19 12.998H5v-2h14z"/>
-</svg>
-        <span class="sr-only">Decrease tempo</span>
-            </button>
-          <div class="tempo" data-text="bpm">120</div>
-        <button class="tempo-control tempo-control--increase" aria-label="Increase tempo">
-        <svg role="img" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-  <path fill="currentColor" d="M19 12.998h-6v6h-2v-6H5v-2h6v-6h2v6h6z"/>
-</svg>
-          <span class="sr-only">Increase tempo</span>
+        </div>
+        <div class="beats">
+          <div class="beat"></div>
+          <div class="beat"></div>
+          <div class="beat"></div>
+        </div>
+        <div class="tempo-wrapper">
+          <button class="tempo-control tempo-control--decrease" aria-label="Decrease tempo">
+            <svg role="img" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M19 12.998H5v-2h14z"/>
+            </svg>
+            <span class="sr-only">Decrease tempo</span>
           </button>
-      </div>
-      
-      <div class="controls">
-        <button class="toggle-play" type="button" onclick="this.getRootNode().host.toggle(this)">
-          <svg class="play-icon" fill="currentColor role="img" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg>
-          <svg class="pause-icon" role="img" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M48 64C21.5 64 0 85.5 0 112V400c0 26.5 21.5 48 48 48H80c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48H48zm192 0c-26.5 0-48 21.5-48 48V400c0 26.5 21.5 48 48 48h32c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48H240z"/></svg>
-          <span class="sr-only">Play metronome</span>
-        </button>
-      </div>
+          <div class="tempo" data-text="bpm">${this.#bpm}</div>
+          <button class="tempo-control tempo-control--increase" aria-label="Increase tempo">
+            <svg role="img" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M19 12.998h-6v6h-2v-6H5v-2h6v-6h2v6h6z"/>
+            </svg>
+            <span class="sr-only">Increase tempo</span>
+          </button>
+        </div>
+        <div class="controls">
+          <button class="toggle-play" type="button" onclick="this.getRootNode().host.toggle(this)">
+            <svg class="play-icon" fill="currentColor role="img" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg>
+            <svg class="pause-icon" role="img" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M48 64C21.5 64 0 85.5 0 112V400c0 26.5 21.5 48 48 48H80c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48H48zm192 0c-26.5 0-48 21.5-48 48V400c0 26.5 21.5 48 48 48h32c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48H240z"/></svg>
+            <span class="sr-only">Play metronome</span>
+          </button>
+        </div>
       </div>
     `;
   }
