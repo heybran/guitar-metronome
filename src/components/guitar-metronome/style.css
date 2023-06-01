@@ -7,8 +7,9 @@
 :host {
   --metronome-icon-color: #e5e7ed;
   --metronome-text-color: #fff;
-  --metronome-primary-color: #5e728f;
-  --metronome-beat-color: #38485a;
+  --metronome-primary-color: #38485a;
+  --metronome-beat-color: #5e728f;
+  --metronome-accent-beat-color: #3a86de;
   font-size: var(--metronome-font-size, 1rem);
   font-family: var(--metronome-font-family, "Teko"), sans-serif;
   background-color: var(--metronome-primary-color);
@@ -21,54 +22,13 @@
   justify-content: center;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-
-a:hover {
-  color: #535bf2;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-
-.logo.vanilla:hover {
-  filter: drop-shadow(0 0 2em #f7df1eaa);
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
-
 @media (prefers-color-scheme: light) {
-  a:hover {
-    color: #747bff;
-  }
 }
 
 .container {
   display: grid;
   grid-auto-flow: row;
-  gap: 10vmin;
+  gap: calc(20px + 5vmin);
   max-width: 500px;
 }
 
@@ -91,8 +51,8 @@ svg {
 }
 
 .toggle-play {
-  width: 30vmin;
-  height: 30vmin;
+  width: 20vmin;
+  height: 20vmin;
   border-radius: 50%;
   background: var(--metronome-text-color);
   display: inline-flex;
@@ -146,19 +106,20 @@ svg {
 }
 
 .tempo {
-  font-size: 6em;
+  font-size: 10em;
   position: relative;
   font-weight: 700;
   user-select: none;
   --webkit-user-select: none;
+  line-height: 1.2;
 }
 
 .tempo::after {
   content: attr(data-text);
-  font-size: 0.2em;
+  font-size: 0.15em;
   text-transform: uppercase;
   position: absolute;
-  bottom: -0.3em;
+  bottom: -0.15em;
   left: 50%;
   transform: translateX(-50%);
   font-weight: 300;
@@ -175,7 +136,25 @@ svg {
   width: 5vmin;
   height: 5vmin;
   border-radius: 50%;
+  border: 1px solid var(--metronome-text-color);
+  position: relative;
+}
+
+.beat.accent::after {
+  position: absolute;
+  content: "\2191";
+  top: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--metronome-text-color);
+}
+
+.beat.active {
   background-color: var(--metronome-beat-color);
+}
+
+.beat.accent.active {
+  background-color: var(--metronome-accent-beat-color);
 }
 
 .signatures {
@@ -189,14 +168,22 @@ svg {
   background-color: var(--metronome-beat-color);
   outline: 2px solid var(--metronome-primary-color);
   border: none;
-  width: 10vmin;
-  height: 10vmin;
+  width: 15vmin;
+  height: 15vmin;
   border-radius: 50%;
   position: relative;
   display: grid;
   align-items: center;
   justify-items: center;
   color: var(--metronome-text-color);
+}
+
+.signature.current {
+  background-color: var(--metronome-accent-beat-color);
+}
+
+.signature > * {
+  font-size: 5vmin;
 }
 
 .signature > *,

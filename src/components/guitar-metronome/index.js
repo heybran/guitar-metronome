@@ -37,6 +37,20 @@ export default class GuitarMetronome extends HTMLElement {
   #isPlaying;
 
   /**
+   * The sound played on the accent beat.
+   * @type {HTMLAudioElement}
+   * @private
+   */
+  #accentBeatSound;
+
+  /**
+   * Normal sound of metronome beat.
+   * @type {HTMLAudioElement}
+   * @private
+   */
+  #normalBeatSound;
+
+  /**
    * The ID of the interval timer used to play the metronome.
    * @type {number}
    * @private
@@ -81,8 +95,11 @@ export default class GuitarMetronome extends HTMLElement {
     this.#isPlaying = false;
     // @ts-ignore
     this.#timerId = null;
+    // @ts-ignore
     this.#timerStart = null;
     this.#beatCount = 0;
+    this.#accentBeatSound = new Audio(BeatStart);
+    this.#normalBeatSound = new Audio(BeatNormal);
   }
 
   connectedCallback() {
@@ -121,19 +138,26 @@ export default class GuitarMetronome extends HTMLElement {
    * Starts the metronome.
    */
   start() {
-    // if (this.#isPlaying) {
-    //   return;
-    // }
-
     const interval = 60000 / this.#bpm;
-    this.#timerStart = performance.now();
+    // @ts-ignore
     this.#timerId = setInterval(() => {
       // Play the metronome sound
-      const audio = new Audio(
-        this.#beatCount % 4 === 0 ? BeatStart : BeatNormal,
-      );
-      audio.play();
+      this.#beatCount % 4 === 0
+        ? this.#accentBeatSound.play()
+        : this.#normalBeatSound.play();
       this.#beatCount++;
+      const beats = this.shadowRoot?.querySelectorAll(".beat");
+      beats?.forEach((beat, index) => {
+        if (index === this.#beatCount - 1) {
+          beat.classList.add("active");
+        } else {
+          beat.classList.remove("active");
+        }
+      });
+
+      if (this.#beatCount === 4) {
+        this.#beatCount = 0;
+      }
     }, interval);
 
     this.#isPlaying = true;
@@ -145,16 +169,14 @@ export default class GuitarMetronome extends HTMLElement {
    * Stops the metronome.
    */
   stop() {
-    // if (!this.#isPlaying) {
-    //   return;
-    // }
-
     this.classList.remove("is-playing");
     this.#srText.textContent = "Play metronome";
     clearInterval(this.#timerId);
     this.#isPlaying = false;
+    // @ts-ignore
     this.#timerId = null;
     this.#beatCount = 0;
+    // @ts-ignore
     this.#timerStart = null;
   }
 
@@ -182,38 +204,11 @@ export default class GuitarMetronome extends HTMLElement {
     }
 
     this.#bpm = bpm;
+    console.log(this.#bpm);
+    // @ts-ignore
     this.#tempo.textContent = this.#bpm;
 
     if (this.#isPlaying) {
-      const timeElapsed = this.#timerId
-        ? performance.now() - this.#timerStart
-        : 0;
-      const timePerBeat = 60000 / this.#bpm;
-      const beatsElapsed = Math.floor(timeElapsed / timePerBeat);
-      const measureElapsed = Math.floor(beatsElapsed / 4);
-      const timeElapsedInMeasure =
-        timeElapsed - measureElapsed * 4 * timePerBeat;
-      const timeRemainingInMeasure = 4 * timePerBeat - timeElapsedInMeasure;
-      clearInterval(this.#timerId);
-      const interval = 60000 / this.#bpm;
-      const delay = timeRemainingInMeasure;
-
-      setTimeout(() => {
-        // Play the metronome sound
-        const audio = new Audio(
-          this.#beatCount % 4 === 0 ? BeatStart : BeatNormal,
-        );
-        audio.play();
-        this.#beatCount++;
-        this.#timerStart = performance.now();
-        this.#timerId = setInterval(() => {
-          const audio = new Audio(
-            this.#beatCount % 4 === 0 ? BeatStart : BeatNormal,
-          );
-          audio.play();
-          this.#beatCount++;
-        }, interval);
-      }, delay);
       this.stop();
       this.start();
     }
@@ -232,7 +227,7 @@ export default class GuitarMetronome extends HTMLElement {
           <div>3</div>
           <div>4</div>
         </button>
-        <button class="signature" data-signature="4/4">
+        <button class="signature current" data-signature="4/4">
           <div>4</div>
           <div>4</div>
         </button>
@@ -242,6 +237,7 @@ export default class GuitarMetronome extends HTMLElement {
         </button>
         </div>
         <div class="beats">
+          <div class="beat accent"></div>
           <div class="beat"></div>
           <div class="beat"></div>
           <div class="beat"></div>
