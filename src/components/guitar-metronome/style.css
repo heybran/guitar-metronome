@@ -114,6 +114,12 @@ svg {
   line-height: 1.2;
 }
 
+@media (max-width: 768px) {
+  .tempo {
+    font-size: 5em;
+  }
+}
+
 .tempo::after {
   content: attr(data-text);
   font-size: 0.15em;
