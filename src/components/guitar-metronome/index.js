@@ -113,7 +113,7 @@ export default class GuitarMetronome extends HTMLElement {
       }
       this.#bpm = bpm;
     } else {
-      this.#bpm = 80;
+      this.#bpm = 100;
     }
 
     this.render();

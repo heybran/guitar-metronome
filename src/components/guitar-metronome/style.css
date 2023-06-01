@@ -89,7 +89,7 @@ svg {
   display: grid;
   align-items: center;
   justify-content: center;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 40vmin auto;
   gap: 5vmin;
   color: var(--metronome-text-color);
 }
