@@ -29,7 +29,6 @@
   display: grid;
   grid-auto-flow: row;
   gap: calc(20px + 5vmin);
-  max-width: 500px;
 }
 
 .sr-only {
