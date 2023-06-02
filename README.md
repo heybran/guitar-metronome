@@ -11,8 +11,8 @@ You can try out the app live at [https://guitar-metronome.netlify.app](https://g
 To install the app locally, follow these steps:
 
 1. Clone the repository: `git clone https://github.com/heybran/guitar-metronome.git`
-2. Install the dependencies: `pnpm install`
-3. Start the development server: `npm run dev`
+2. Install the dependencies: `npm install` or `pnpm install`
+3. Start the development server: `npm run dev` or `pnpm run dev`
 4. Open the app in your browser at [http://localhost:5173](http://localhost:5173)
 
 ## Usage
