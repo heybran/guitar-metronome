@@ -10,81 +10,59 @@ const audioContext = new AudioContext();
  * The frequency of the accent beat sound.
  * @type {number}
  */
-const accentBeatFrequency = 880; // A5
+const accentBeatFrequency = 200; // A5
 
 /**
  * The frequency of the normal beat sound.
  * @type {number}
  */
-const normalBeatFrequency = 440; // A4
+const normalBeatFrequency = 150; // A4
+
+const primaryGainControl = audioContext.createGain();
+primaryGainControl.gain.setValueAtTime(2, 0);
+primaryGainControl.connect(audioContext.destination);
 
 /**
- * The duration of each beat sound, in seconds.
- * @type {number}
+ * Creates an oscillator sound with the given frequency and gain envolope.
+ * @param {number} frequency - The frequency of the oscillator sound.
+ * @returns {OscillatorNode} An OscillatorNode object that generates the metronome sound.
  */
-const beatDuration = 0.2; // 200ms
+const createBeatSound = (frequency) => {
+  const kickOscillator = audioContext.createOscillator();
 
-/**
- * Create a function that generates an AudioBufferSourceNode for a given frequency and duration
- * @param {number} frequency
- * @param {number} duration
- * @returns {AudioBufferSourceNode}
- */
-const createBeatSound = (frequency, duration) => {
-  // Create an AudioBuffer object with a single channel and a fixed duration
-  const audioBuffer = audioContext.createBuffer(
-    1,
-    audioContext.sampleRate * duration,
-    audioContext.sampleRate,
+  kickOscillator.frequency.setValueAtTime(frequency, 0);
+  kickOscillator.frequency.exponentialRampToValueAtTime(
+    0.001,
+    audioContext.currentTime + 0.5,
   );
 
-  // Get the channel data of the buffer and fill it with a sine wave at the give frequency
-  const channelData = audioBuffer.getChannelData(0);
-  for (let i = 0; i < channelData.length; i++) {
-    channelData[i] = Math.sign(
-      (2 * Math.PI * frequency * i) / audioContext.sampleRate,
-    );
-  }
+  const kickGain = audioContext.createGain();
+  kickGain.gain.setValueAtTime(1, 0);
+  kickGain.gain.exponentialRampToValueAtTime(
+    0.001,
+    audioContext.currentTime + 0.5,
+  );
 
-  // Create an AudioBufferSourceNode and set its buffer and loop properties
-  const audioSource = audioContext.createBufferSource();
-  audioSource.buffer = audioBuffer;
-  audioSource.loop = false;
+  kickOscillator.connect(kickGain);
+  kickGain.connect(primaryGainControl);
 
-  return audioSource;
+  return kickOscillator;
 };
 
 /**
- * @returns {AudioBufferSourceNode}
+ * Plays the accent beat sound.
  */
-export const createAccentBeatSound = () => {
-  console.log(audioContext);
-  return createBeatSound(accentBeatFrequency, beatDuration);
+export const playAccentBeatSound = () => {
+  const accentBeatSound = createBeatSound(accentBeatFrequency);
+  accentBeatSound.start();
+  accentBeatSound.stop(audioContext.currentTime + 0.5);
 };
 
 /**
- * @returns {AudioBufferSourceNode}
+ * Plays the normal beat sound.
  */
-export const createNormalBeatSound = () => {
-  return createBeatSound(normalBeatFrequency, beatDuration);
+export const playNormalBeatSound = () => {
+  const normalBeatSound = createBeatSound(normalBeatFrequency);
+  normalBeatSound.start();
+  normalBeatSound.stop(audioContext.currentTime + 0.5);
 };
-
-// Create an oscillator node to generate a periodic waveform
-// const oscillator = audioContext.createOscillator();
-// // Set the waveform type to sine
-// oscillator.type = 'sine';
-// // Set the frequency to 880Hz (A5)
-// // A5 refers to a musical note in the scientific pitch notation ststem
-// oscillator.frequency.value = 880;
-
-// // Create a gain node to control the volume of the sound
-// const gain = audioContext.createGain();
-// gain.gain.value = 0.5; // Set the volume to 50%
-
-// // Connect the oscillator to the gain node, and the gain node
-// // to the audio context destination
-// oscillator.connect(gain);
-// gain.connect(audioContext.destination);
-
-// // Start the oscillator
-// oscillator.start();

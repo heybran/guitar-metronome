@@ -1,11 +1,6 @@
 // @ts-check
 import css from "./style.css?inline";
-import BeatStart from "@sounds/beat-start.wav";
-import BeatNormal from "@sounds/beat-normal.wav";
-import {
-  createAccentBeatSound,
-  createNormalBeatSound,
-} from "../../sounds/sounds";
+import { playAccentBeatSound, playNormalBeatSound } from "../../sounds/sounds";
 
 /**
  * A custom element that provides a metronome for guitar practice.
@@ -39,20 +34,6 @@ export default class GuitarMetronome extends HTMLElement {
    * @private
    */
   #isPlaying;
-
-  /**
-   * The sound played on the accent beat.
-   * @type {HTMLAudioElement}
-   * @private
-   */
-  #accentBeatSound;
-
-  /**
-   * Normal sound of metronome beat.
-   * @type {HTMLAudioElement}
-   * @private
-   */
-  #normalBeatSound;
 
   /**
    * The ID of the interval timer used to play the metronome.
@@ -102,8 +83,6 @@ export default class GuitarMetronome extends HTMLElement {
     // @ts-ignore
     this.#timerStart = null;
     this.#beatCount = 0;
-    this.#accentBeatSound = new Audio(BeatStart);
-    this.#normalBeatSound = new Audio(BeatNormal);
   }
 
   connectedCallback() {
@@ -147,14 +126,11 @@ export default class GuitarMetronome extends HTMLElement {
     this.#timerId = setInterval(() => {
       // Play the metronome sound
       if (this.#beatCount % 4 === 0) {
-        const accentBeatSound = createAccentBeatSound();
-        console.log(accentBeatSound);
-        accentBeatSound.start();
+        playAccentBeatSound();
       } else {
-        const normalBeatSound = createNormalBeatSound();
-        console.log(normalBeatSound);
-        normalBeatSound.start();
+        playNormalBeatSound();
       }
+
       this.#beatCount++;
       const beats = this.shadowRoot?.querySelectorAll(".beat");
       beats?.forEach((beat, index) => {
@@ -214,7 +190,6 @@ export default class GuitarMetronome extends HTMLElement {
     }
 
     this.#bpm = bpm;
-    console.log(this.#bpm);
     // @ts-ignore
     this.#tempo.textContent = this.#bpm;
 
