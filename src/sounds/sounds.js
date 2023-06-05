@@ -19,7 +19,7 @@ const accentBeatFrequency = 200; // A5
 const normalBeatFrequency = 150; // A4
 
 const primaryGainControl = audioContext.createGain();
-primaryGainControl.gain.setValueAtTime(2, 0);
+primaryGainControl.gain.setValueAtTime(4, 0);
 primaryGainControl.connect(audioContext.destination);
 
 /**

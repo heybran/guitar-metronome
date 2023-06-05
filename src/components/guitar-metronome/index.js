@@ -58,6 +58,13 @@ export default class GuitarMetronome extends HTMLElement {
   #signature;
 
   /**
+   * The number of beats in each measure.
+   * @type {number}
+   * @private
+   */
+  #beatsPerMeasure;
+
+  /**
    * The root element of the shadowDOM
    * @type {ShadowRoot}
    * @private
@@ -77,12 +84,6 @@ export default class GuitarMetronome extends HTMLElement {
   constructor() {
     super();
     this.root = this.attachShadow({ mode: "open" });
-    this.#isPlaying = false;
-    // @ts-ignore
-    this.#timerId = null;
-    // @ts-ignore
-    this.#timerStart = null;
-    this.#beatCount = 0;
   }
 
   connectedCallback() {
@@ -100,10 +101,22 @@ export default class GuitarMetronome extends HTMLElement {
     }
 
     this.render();
+
+    this.#isPlaying = false;
+    // @ts-ignore
+    this.#timerId = null;
+    // @ts-ignore
+    this.#timerStart = null;
+    this.#beatCount = 0;
     // @ts-ignore
     this.#srText = this.shadowRoot.querySelector(".toggle-play .sr-only");
     // @ts-ignore
     this.#tempo = this.shadowRoot?.querySelector(".tempo");
+    // @ts-ignore
+    this.#signature = this.shadowRoot
+      ?.querySelector(".signature.current")
+      ?.dataset.signature.trim();
+    this.#beatsPerMeasure = parseInt(this.#signature.split("/")[0]);
   }
 
   /**
@@ -125,7 +138,7 @@ export default class GuitarMetronome extends HTMLElement {
     // @ts-ignore
     this.#timerId = setInterval(() => {
       // Play the metronome sound
-      if (this.#beatCount % 4 === 0) {
+      if (this.#beatCount % this.#beatsPerMeasure === 0) {
         playAccentBeatSound();
       } else {
         playNormalBeatSound();
@@ -141,7 +154,7 @@ export default class GuitarMetronome extends HTMLElement {
         }
       });
 
-      if (this.#beatCount === 4) {
+      if (this.#beatCount === this.#beatsPerMeasure) {
         this.#beatCount = 0;
       }
     }, interval);
@@ -199,26 +212,72 @@ export default class GuitarMetronome extends HTMLElement {
     }
   }
 
+  /**
+   * Sets the signature of metronome.
+   * @param {HTMLButtonElement} signatureButton
+   * @returns {void}
+   */
+  setSignature(signatureButton) {
+    const currentSignatureButton =
+      this.shadowRoot?.querySelector(".signature.current");
+    currentSignatureButton?.classList.remove("current");
+    signatureButton.classList.add("current");
+    const signature = signatureButton.dataset.signature;
+    // @ts-ignore
+    this.#beatsPerMeasure = parseInt(signature?.split("/")[0]);
+    this.updateBeatsHint(this.#beatsPerMeasure);
+    if (this.#isPlaying) {
+      this.stop();
+      this.start();
+    }
+  }
+
+  /**
+   * Updates beats hint element on UI
+   * @param {number} beatsPerMeasure
+   * @returns {void}
+   */
+  updateBeatsHint(beatsPerMeasure) {
+    const beatsContainer = this.shadowRoot?.querySelector(".beats");
+    // @ts-ignore
+    beatsContainer.innerHTML = "";
+    for (let i = 0; i < beatsPerMeasure; i++) {
+      const beat = document.createElement("div");
+      beat.classList.add("beat");
+      if (i === 0) beat.classList.add("accent");
+      // @ts-ignore
+      beatsContainer.appendChild(beat);
+    }
+  }
+
   render() {
     this.root.innerHTML = `
       <style>${css}</style>
       <div class="container">
         <div class="signatures">
-        <button class="signature" data-signature="2/4">
-          <div>2</div>
-          <div>4</div>
-        </button>
-        <button class="signature" data-signature="3/4">
+        <button 
+          class="signature" 
+          data-signature="3/4" 
+          onclick="this.getRootNode().host.setSignature(this)"
+        >
           <div>3</div>
           <div>4</div>
         </button>
-        <button class="signature current" data-signature="4/4">
+        <button 
+          class="signature current" 
+          data-signature="4/4"
+          onclick="this.getRootNode().host.setSignature(this)"
+        >
           <div>4</div>
           <div>4</div>
         </button>
-        <button class="signature" data-signature="5/4">
-          <div>5</div>
-          <div>4</div>
+        <button 
+          class="signature" 
+          data-signature="6/8"
+          onclick="this.getRootNode().host.setSignature(this)"
+        >
+          <div>6</div>
+          <div>8</div>
         </button>
         </div>
         <div class="beats">
