@@ -20,7 +20,7 @@ To install the app locally, follow these steps:
 To use the app, follow these steps:
 
 1. Set the tempo using `-` / `+` button or the slider (`slider not implemented yet`).
-2. Set the time signature using the dropdown menu (`not implemented yet`).
+2. Set the time signature by clicking the signture buttons.
 3. Click the "Start" button to start the metronome.
 4. Click the "Stop" button to stop the metronome.
 
