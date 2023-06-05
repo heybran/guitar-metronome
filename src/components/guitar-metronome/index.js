@@ -2,6 +2,7 @@
 import css from "./style.css?inline";
 import BeatStart from "@sounds/beat-start.wav";
 import BeatNormal from "@sounds/beat-normal.wav";
+import "./long-press-button.js";
 
 /**
  * A custom element that provides a metronome for guitar practice.
@@ -243,19 +244,19 @@ export default class GuitarMetronome extends HTMLElement {
           <div class="beat"></div>
         </div>
         <div class="tempo-wrapper">
-          <button class="tempo-control" onclick="this.getRootNode().host.decreaseTempo()" aria-label="Decrease tempo">
+          <long-press-button class="tempo-control" onclick="this.getRootNode().host.decreaseTempo()" aria-label="Decrease tempo">
             <svg role="img" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
               <path fill="currentColor" d="M19 12.998H5v-2h14z"/>
             </svg>
             <span class="sr-only">Decrease tempo</span>
-          </button>
+          </long-press-button>
           <div class="tempo" data-text="bpm">${this.#bpm}</div>
-          <button class="tempo-control" onclick="this.getRootNode().host.increaseTempo()" aria-label="Increase tempo">
+          <long-press-button class="tempo-control" onclick="this.getRootNode().host.increaseTempo()" aria-label="Increase tempo">
             <svg role="img" focusable="false" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
               <path fill="currentColor" d="M19 12.998h-6v6h-2v-6H5v-2h6v-6h2v6h6z"/>
             </svg>
             <span class="sr-only">Increase tempo</span>
-          </button>
+          </long-press-button>
         </div>
         <div class="controls">
           <button class="toggle-play" type="button" onclick="this.getRootNode().host.toggle(this)">
