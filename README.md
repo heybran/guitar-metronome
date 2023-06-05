@@ -1,6 +1,6 @@
 # Guitar Metronome
 
-This is a simple metronome app for guitar players, built with vanilla web components. The app allows you to set the tempo (in beats per minute) and the time signatures, and provides an audible click track to help you keep time while practicing.
+A simple online guitar metronome app built with vanilla [Web Components](https://developer.mozilla.org/en-US/docs/Web/API/Web_components) and [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API). The app allows you to set the tempo (in beats per minute) and the time signatures, and provides an audible click track to help you keep time while practicing.
 
 ## Demo
 
@@ -11,8 +11,8 @@ You can try out the app live at [https://guitar-metronome.netlify.app](https://g
 To install the app locally, follow these steps:
 
 1. Clone the repository: `git clone https://github.com/heybran/guitar-metronome.git`
-2. Install the dependencies: `pnpm install`
-3. Start the development server: `npm run dev`
+2. Install the dependencies: `npm install` or `pnpm install`
+3. Start the development server: `npm run dev` or `pnpm run dev`
 4. Open the app in your browser at [http://localhost:5173](http://localhost:5173)
 
 ## Usage
@@ -20,7 +20,7 @@ To install the app locally, follow these steps:
 To use the app, follow these steps:
 
 1. Set the tempo using `-` / `+` button or the slider (`slider not implemented yet`).
-2. Set the time signature using the dropdown menu (`not implemented yet`).
+2. Set the time signature by clicking the signture buttons.
 3. Click the "Start" button to start the metronome.
 4. Click the "Stop" button to stop the metronome.
 
