@@ -47,6 +47,8 @@ class LongPressButton extends HTMLElement {
   }
 
   handleMouseUp() {
+    this.#triggerCount = 0;
+
     clearTimeout(this.#timerId);
   }
 
