@@ -6,14 +6,31 @@ class LongPressButton extends HTMLElement {
    */
   #timerId;
 
+  /**
+   * the count of interval trigger
+   * @type {number}
+   * @private
+   */
+  #triggerCount = 0;
+
+  /**
+   * press trigger interval
+   * @return {number}
+   */
+  get rate() {
+    return Math.max(400 - Math.log(this.#triggerCount + 1) * 100, 40);
+  }
+
   connectedCallback() {
     this.attachShadow({ mode: "open" });
     this.shadowRoot.innerHTML = `<slot></slot>`;
 
-    // 添加事件监听器
     this.addEventListener("mousedown", this.handleMouseDown);
     this.addEventListener("mouseup", this.handleMouseUp);
     this.addEventListener("mouseleave", this.handleMouseUp);
+    this.addEventListener("touchstart", this.handleMouseDown);
+    this.addEventListener("touchend", this.handleMouseUp);
+    this.addEventListener("touchmove", this.handleMouseUp);
   }
 
   handleMouseDown() {
@@ -22,10 +39,11 @@ class LongPressButton extends HTMLElement {
     this.#timerId = setTimeout(() => {
       // trigger click event
       this.dispatchEvent(new Event("click"));
+      ++this.#triggerCount;
 
       // reset timer
       this.handleMouseDown();
-    }, 300);
+    }, this.rate);
   }
 
   handleMouseUp() {
@@ -35,11 +53,14 @@ class LongPressButton extends HTMLElement {
   disconnectedCallback() {
     clearTimeout(this.#timerId);
 
+    this.#triggerCount = 0;
     this.removeEventListener("mousedown", this.handleMouseDown);
     this.removeEventListener("mouseup", this.handleMouseUp);
     this.removeEventListener("mouseleave", this.handleMouseUp);
+    this.removeEventListener("touchstart", this.handleMouseDown);
+    this.removeEventListener("touchend", this.handleMouseUp);
+    this.removeEventListener("touchmove", this.handleMouseUp);
   }
 }
 
-// 定义新的HTML元素
 customElements.define("long-press-button", LongPressButton);
